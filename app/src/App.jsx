@@ -23,12 +23,29 @@ function App() {
 
   // Editor value -> YJS Text value (A text value shared by multiple people)
 
+  // Initialize YJS, tell it to listen to our Monaco instance for changes.
+  function handleEditorDidMount(editor, monaco) {
+    editorRef.current = editor;
+
+    // Initialize YJS
+    const doc = new Y.Doc(); // a collection of shared objects -> Text
+
+    // Connect to peers (or start connection) with webRTC
+    const provider = new WebrtcProvider("test-room", doc);
+    const type = doc.getText("monaco"); // doc { "monaco": "what our IDE is showing" }
+
+    // Bind YJS to Monaco
+    const binding = new MonacoBinding(type, editorRef.current.getModel(), new Set([editorRef.current]), provider.awareness);
+    console.log(provider.awareness)
+  }
+
   return (
     <div>
       <Editor
         height="90vh"
         width="100vw"
         theme="vs-dark"
+        onMount={handleEditorDidMount}
       />
     </div>
   )
